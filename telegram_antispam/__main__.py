@@ -28,6 +28,9 @@ async def chat_member_handler(update: Update, context: ContextTypes.DEFAULT_TYPE
 
 
 async def text_message_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if update.message is None:
+        return
+
     log_prefix = (f"Chat {update.message.chat.id} ({update.message.chat.title!r}): "
                   f"user {update.message.from_user.id} ({update.message.from_user.name!r})")
 
@@ -36,7 +39,7 @@ async def text_message_handler(update: Update, context: ContextTypes.DEFAULT_TYP
         logger.debug(f"{log_prefix}: user has no join timestamp. Assuming now")
 
         context.chat_data.setdefault("user_joined_at", {})
-        user_joined_at = context.chat_data[update.message.from_user.id] = datetime.now(UTC)
+        user_joined_at = context.chat_data["user_joined_at"][update.message.from_user.id] = datetime.now(UTC)
 
     if user_joined_at < datetime.now(UTC) - timedelta(days=1):
         logger.debug(f"{log_prefix}: new message from trusted user (joined at {user_joined_at})")
